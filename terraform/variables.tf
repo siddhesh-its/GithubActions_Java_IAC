@@ -1,3 +1,4 @@
+# The below is the region variable
 variable "region" {
   description = "AWS region"
   type        = string
