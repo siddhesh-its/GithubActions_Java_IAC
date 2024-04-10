@@ -19,7 +19,7 @@ env:
 
 jobs:
     terraform: 
-        name: "Apply terraform code changes"
+        name: "Apply terraform code changess"
         runs-on: ubuntu-latest
         defaults:
             run:
