@@ -3,7 +3,7 @@ output "cluster_name" {
   value       = module.eks.cluster_name
 }
 
-# Outputs
+
 output "cluster_endpoint" {
   description = "Endpoint for Amazon Web Service EKS "
   value       = module.eks.cluster_endpoint
