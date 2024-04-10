@@ -27,6 +27,7 @@ terraform {
   }
 
   backend "s3" {
+    # Updated the bucket name here
     bucket = "vprofile15"
     key    = "terraform.tfstate"
     region = "us-east-1"
