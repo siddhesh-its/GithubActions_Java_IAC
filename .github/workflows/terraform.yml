@@ -62,7 +62,7 @@ jobs:
 
       - name: Terraform Apply
         id: apply_id
-        if: github.refs == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false -parallelism=1 planfile
 
       - name: Configure AWS credentials
@@ -79,4 +79,4 @@ jobs:
 
       - name: Install ingress controller
         if: steps.apply_id.outcome == 'success'  && steps.getconfig.outcome == 'success'
-        run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.3/deploy/static/provider/aws/deply.yaml
+        run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.3/deploy/static/provider/aws/deploy.yaml
