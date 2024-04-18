@@ -59,3 +59,4 @@ env:
        - name: Terraform plan status
          if: steps.plan.outcome == 'failure' 
          run: exit 1
+         
