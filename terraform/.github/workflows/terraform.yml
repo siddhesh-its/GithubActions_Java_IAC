@@ -19,8 +19,7 @@ env:
  # S3 bucket for the Terraform state
  BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE}}
  AWS_REGION: eu-west-3
- EKS_CLUSTER: gitops2024
-
+ EKS_CLUSTER: vprofilecluster
 jobs:
    terraform:
      name: "Apply terraform code changes"
