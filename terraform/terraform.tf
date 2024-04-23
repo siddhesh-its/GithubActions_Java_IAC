@@ -27,9 +27,9 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "gitopsterrastate"
+    bucket = "gitops2024"
     key    = "terraform.tfstate"
-    region = "us-east-2"
+    region = "eu-west-3"
   }
 
   required_version = "~> 1.6.3"
