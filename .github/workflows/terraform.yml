@@ -1,10 +1,10 @@
-name: "vprofile IAC"
-on: 
+name: "Vprofile IAC"
+on:
   push:
     branches:
       - main
       - stage
-    paths:
+    paths:  
       - terraform/**
   pull_request:
     branches:
@@ -13,24 +13,24 @@ on:
       - terraform/**
 
 env:
-  # Credential for deployment to AWS
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
-  # S3 bucket for the Terraform state
-  BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
-  AWS_REGION: us-east-2
-  EKS_CLUSTER: vprofile-eks
+ # Credentials for deployment to AWS
+ AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+ AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+ # S3 bucket for the Terraform state
+ BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE}}
+ AWS_REGION: us-east-2
+ EKS_CLUSTER: vprofile-eks
 
 jobs:
-    terraform:
-    name: "Apply terraform code changes"
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./terraform
-      
-      steps:
+   terraform:
+     name: "Apply terraform code changes"
+     runs-on: ubuntu-latest
+     defaults:
+       run:
+         shell: bash
+         working-directory: ./terraform
+
+     steps:
        - name: Checkout source code 
          uses: actions/checkout@v4
 
