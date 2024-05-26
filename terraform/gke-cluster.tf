@@ -10,7 +10,7 @@ provider "kubernetes" {
 module "gke" {
   source                     = "terraform-google-modules/kubernetes-engine/google"
   project_id                 = "gitops-project-424508"
-  name                       = "gke-test-1"
+  name                       = "gke-cluster"
   region                     = "us-central1"
   zones                      = ["us-central1-c"]
   network                    = "gitops-vpc"
