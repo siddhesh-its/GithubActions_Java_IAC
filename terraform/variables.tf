@@ -23,3 +23,8 @@ variable "cluster_name" {
   type        = string
   default     = "gitops-gke"
 }
+variable "credentials_file_path" {
+  description = "Path to the Google Cloud credentials JSON file"
+  type        = string
+  default     = "key.json"
+}
