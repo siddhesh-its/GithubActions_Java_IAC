@@ -1,6 +1,5 @@
 # Define provider
 
-
 module "vpc" {
     source  = "terraform-google-modules/network/google"
     version = "~> 9.1"
