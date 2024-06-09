@@ -2,7 +2,7 @@
 
 # Define provider
 provider "google" {
-  credentials = file(var.credentials_file_path)
+  credentials = file("key.json")
   project = var.project_id
   region  = var.region
 }
