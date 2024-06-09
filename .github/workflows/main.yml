@@ -1,16 +1,6 @@
 name: "Vprofile IAC 111"
 on:
-  push:
-    branches:
-      - stage
-    paths:  
-      - terraform/**
-  pull_request:
-    branches:
-      - main
-      - stage
-    paths:
-      - terraform/**
+  workflow_dispatch:
 
 env:
 
