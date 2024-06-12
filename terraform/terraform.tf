@@ -1,9 +1,5 @@
 terraform {
   required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.25.0"
-    }
 
     random = {
       source  = "hashicorp/random"
@@ -26,13 +22,12 @@ terraform {
     }
   }
 
-  backend "s3" {
-    bucket = "gitopsterrastate"
-    key    = "terraform.tfstate"
-    region = "us-east-2"
+  backend "gcs" {
+    bucket = "my-gitops-project-state"
+    prefix = "terraform/state"
   }
 
-  required_version = "~> 1.6.3"
+  required_version = ">= 1.6.0"
 }
 ##
 ##
