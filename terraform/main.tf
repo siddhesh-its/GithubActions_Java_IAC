@@ -3,9 +3,15 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
 }
 
+#provider "aws" {
+ # region = var.region
+#}
+
 provider "aws" {
-  region = var.region
+  profile = "myprofile"  # Specify your AWS CLI profile name here
+  region  = var.region   # Use the region variable
 }
+
 
 data "aws_availability_zones" "available" {}
 
