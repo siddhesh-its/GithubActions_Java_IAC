@@ -1,11 +1,11 @@
-name: IaC helthcare
+name: IaC healthcare
 on:
   workflow_dispatch:
   push:
     branches:
       - main
       - staging
-    path:
+    paths:
       - terraform/**
   pull_request:
     branches:
@@ -15,7 +15,7 @@ on:
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: $ {{  secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
   AWS_REGION: us-east-2
   EKS_CLUSTER: helthcare-eks
@@ -24,22 +24,18 @@ jobs:
   terraform:
     name: Apply terraform code changes
     runs-on: ubuntu-latest
-    defaults:
-      run:
-      shell: bash
-      working_directory: ./terraform
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Setup terraform with specified version on the runner             #gitub.com/marketplace search checkout, search terraform
+      - name: Setup terraform with specified version on the runner
         uses: hashicorp/setup-terraform@v2
 
-      - name: Terrform init 
+      - name: Terraform init
         id: init
-        run: terraform init -backend-config="bucket"
-      
+        run: terraform init -backend-config="bucket=${{ env.BUCKET_TF_STATE }}"
+
       - name: Terraform fmt
         id: fmt
         run: terraform fmt -check
@@ -54,10 +50,5 @@ jobs:
         continue-on-error: true
 
       - name: Terraform plan status
-        if: step.plan.outcome == 'failure'
+        if: steps.plan.outcome == 'failure'
         run: exit 1
-
-
-
-
- 
