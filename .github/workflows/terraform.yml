@@ -1,0 +1,49 @@
+name: IaC helthcare
+on:
+  push:
+    branches:
+      - main
+      - staging
+    path:
+      - terraform/**
+  pull:
+    branches:
+      - main
+    paths:
+      - terraform/**
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: $ {{  secrets.AWS_SECRET_ACCESS_KEY }}
+  BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
+  AWS_REGION: us-east-2
+  EKS_CLUSTER: helthcare-eks
+
+jobs:
+  terraform:
+    name: Apply terraform code changes
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+      shell: bash
+      working_directory: ./terraform
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup terraform with specified version on the runner             #gitub.com/marketplace search checkout, search terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terrform init 
+        id: init
+        run: terraform init -backend-config="bucket"
+      
+
+
+
+
+
+
+
+ 
