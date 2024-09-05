@@ -23,7 +23,7 @@ env:
   AWS_REGION: us-east-2
   EKS_CLUSTER: vprofile-eks # same as in the variables.tf
 
-  jobs: 
+jobs: 
     terraform:
       name: "Apply terraform code changes"
       # Creates container from ubuntu image
