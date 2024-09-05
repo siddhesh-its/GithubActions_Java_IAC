@@ -28,7 +28,7 @@ terraform {
 
   backend "s3" {
     bucket = "terrastate-dove-mymi14s"
-    key    = "terraform.tfstate"
+    key    = "github/terraform.tfstate"
     region = "us-east-1"
   }
 
