@@ -1,0 +1,66 @@
+name: "vprofile IAC"
+on: 
+  push:
+    branches:
+      - main
+      - stage
+    paths: # any change in the folder 
+      - terraform/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - terraform/**
+
+# the following data exists in GitHub secrets, I access it via keys
+env:
+  # Credentials for AWS deploy
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  # S3 bucket with Terraform state
+  BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
+  AWS_REGION: us-east-2
+  EKS_CLUSTER: vprofile-eks # same as in the variables.tf
+
+  jobs: 
+    terraform:
+      name: "Apply terraform code changes"
+      # Creates container from ubuntu image
+      runs-on: ubuntu-latest 
+      defaults:
+        run: 
+          shell: bash 
+          # goes to specified dir (using cd command)
+          working-directory: ./terraform
+      steps:
+        - name: Checkout source code
+          uses: actions/checkout@v4 # actions from github actions markeplace
+
+        # installs and sets up terraform
+        - name: Setup Terraform 
+          uses: hashicorp/setup-terraform@v2 # from git hub actions, v2 - actions version
+          #with:
+          #  terraform_version: 1.6.3 # terraform version
+
+        - name: Terraform init
+          id: init # id field can be referenced futher in the code
+          # stores information about run command in the bucket
+          run: terraform init -backend-config="bucket=$BUCKET_TF_STATE"
+
+        - name: Terraform format
+          id: fmt 
+          run: terraform fmt -check # if format is not correct -> returns error code
+
+        - name: Terraform validate
+          id: validate
+          run: terraform validate # checks syntax, objects and attributes
+
+        - name: Terraform plan
+          id: plan
+          run: terraform plan -no-color -input=false -out planfile
+          continue-on-error: true # will handle other way
+
+        - name: Terraform plan status
+          if: steps.plan.outcome == "failure"
+          run: exit 1
