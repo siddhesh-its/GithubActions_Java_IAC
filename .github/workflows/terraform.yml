@@ -28,6 +28,14 @@ jobs:
         shell:  bash 
         working-directory: ./terraform
     steps:
+      - name: Set GIT REPO env variable
+        run: |
+          echo "REPO_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> $GITHUB_ENV
+
+      - name: ECHO Repo name
+        run: |
+          echo $REPO_NAME
+          
       - name: Checkout source code
         uses: actions/checkout@v4
 
@@ -37,13 +45,20 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-          
+
       - name: Setup Infracost
         uses: infracost/actions/setup@v3
         # See https://github.com/infracost/actions/tree/master/setup for other inputs
         # If you can't use this action, use Docker image infracost/infracost:ci-0.10
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      # Generate Infracost JSON file as the baseline.
+      - name: Generate Infracost cost estimate baseline
+        run: |
+          infracost breakdown --path=./terraform \
+                              --format=json \
+                              --out-file=/tmp/infracost-base.json
 
       - name: Setup Terraform with specified version on the runner
         uses: hashicorp/setup-terraform@v2
