@@ -82,6 +82,15 @@ jobs:
                               --format=json \
                               --out-file=infracost-base.json
 
+      # Generate an Infracost diff and save it to a JSON file.
+      - name: Generate Infracost diff
+        if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'synchronize')
+        run: |
+          infracost diff --path=. \
+                          --format=json \
+                          --compare-to=infracost-base.json \
+                          --out-file=infracost.json
+
       - name: Print Workspace folder tree
         uses: jaywcjlove/github-action-folder-tree@main
         with:
@@ -108,11 +117,12 @@ jobs:
       #                                --pull-request=${{ github.event.pull_request.number }} \
       #                                --behavior=update
       - name: Post Infracost comment
+        if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'synchronize')
         run: |
-            infracost comment github --path=infracost-base.json \
+            infracost comment github --path=infracost.json \
                                      --repo=$GITHUB_REPOSITORY \
                                      --github-token=${{ github.token }} \
-                                     --commit=$GITHUB_SHA \
+                                     --pull-request=${{ github.event.pull_request.number }} \
                                      --behavior=update                                     
       - name: Terraform plan status
         if: steps.plan.outcome == 'fail'
