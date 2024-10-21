@@ -19,6 +19,7 @@ env:
   BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
   AWS_REGION: us-east-1
   EKS_CLUSTER: tantech-gitops-eks
+  TF_PLANS_DIR: tfplans/gitops
 jobs:
   terraform:
     name: "Apply Terraform code chnages"
@@ -74,6 +75,13 @@ jobs:
         run: terraform plan -no-color -input=false -out planfile
         continue-on-error: true
 
+      - name: Print Workspace folder tree
+        uses: jaywcjlove/github-action-folder-tree@main
+        with:
+          exclude: "node_modules|dist|.git|.husky"
+          path: ./
+          depth: 3
+          
       # Generate Infracost JSON file as the baseline.
       - name: Generate Infracost cost estimate baseline
         run: |
