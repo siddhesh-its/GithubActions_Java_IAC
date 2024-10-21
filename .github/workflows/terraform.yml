@@ -34,6 +34,8 @@ jobs:
       - name: Set GIT REPO env variable
         run: |
           echo "REPO_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> $GITHUB_ENV
+          echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+          echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_ENV"
 
       - name: ECHO Repo name
         run: |
@@ -99,7 +101,7 @@ jobs:
             infracost comment github --path=/tmp/infracost-base.json \
                                      --repo=$GITHUB_REPOSITORY \
                                      --github-token=${{ github.token }} \
-                                     --commit \
+                                     --commit=$GITHUB_SHA \
                                      --behavior=update                                     
       - name: Terraform plan status
         if: steps.plan.outcome == 'fail'
