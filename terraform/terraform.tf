@@ -22,17 +22,17 @@ terraform {
 
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.23.0"
+      version = "~> 2.33.0"
     }
   }
 
   backend "s3" {
-    bucket = "gitopsterrastate"
+    bucket = "tantech-gitactionstf-backend"
     key    = "terraform.tfstate"
-    region = "us-east-2"
+    region = "us-east-1"
   }
 
-  required_version = "~> 1.6.3"
+  required_version = "~> 1.9.6"
 }
 ##
 ##

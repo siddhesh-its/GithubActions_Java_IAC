@@ -1,0 +1,130 @@
+name: "Github Actions IAC"
+on:
+  push:
+    branches:
+      - main
+      - stage
+    paths:
+      - terraform/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - terraform/**
+
+env:
+  # CREDENTIALS for AWS deployment
+  #AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
+  AWS_REGION: us-east-1
+  EKS_CLUSTER: tantech-gitops-eks
+  TF_PLANS_DIR: tfplans/gitops
+jobs:
+  terraform:
+    name: "Apply Terraform code chnages"
+    runs-on: ubuntu-latest
+    defaults:
+      run: 
+        shell:  bash 
+        working-directory: ./terraform
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set GIT REPO env variable
+        run: |
+          echo "REPO_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> $GITHUB_ENV
+          echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+          echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_ENV"
+
+      - name: ECHO Repo name
+        run: |
+          echo $REPO_NAME
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v3
+        # See https://github.com/infracost/actions/tree/master/setup for other inputs
+        # If you can't use this action, use Docker image infracost/infracost:ci-0.10
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Setup Terraform with specified version on the runner
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terrafornm init
+        id: init
+        run: terraform init -backend-config="bucket=$BUCKET_TF_STATE"
+      
+      - name: Terraform format
+        id: fmt 
+        run: terraform fmt -check
+
+      - name: Terraform validate
+        id: validate
+        run: terraform validate
+
+      - name: Terraform plan
+        id: plan
+        run: terraform plan -no-color -input=false -out planfile
+        continue-on-error: true
+
+      # Generate Infracost JSON file as the baseline.
+      - name: Generate Infracost cost estimate baseline
+        run: |
+          infracost breakdown --path=. \
+                              --format=json \
+                              --out-file=infracost-base.json
+
+      # Generate an Infracost diff and save it to a JSON file.
+      - name: Generate Infracost diff
+        if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'synchronize')
+        run: |
+          infracost diff --path=. \
+                          --format=json \
+                          --compare-to=infracost-base.json \
+                          --out-file=infracost.json
+
+      - name: Print Workspace folder tree
+        uses: jaywcjlove/github-action-folder-tree@main
+        with:
+          exclude: "node_modules|dist|.git|.husky"
+          path: ./
+          depth: 3
+
+      # - name: Generate Infracost cost estimate baseline
+      #   run: |
+      #     infracost breakdown --path=. 
+
+      # Posts a comment to the PR using the 'update' behavior.
+      # This creates a single comment and updates it. The "quietest" option.
+      # The other valid behaviors are:
+      #   delete-and-new - Delete previous comments and create a new one.
+      #   hide-and-new - Minimize previous comments and create a new one.
+      #   new - Create a new cost estimate comment on every push.
+      # See https://www.infracost.io/docs/features/cli_commands/#comment-on-pull-requests for other options.
+      # - name: Post Infracost comment
+      #   run: |
+      #       infracost comment github --path=/tmp/infracost.json \
+      #                                --repo=$GITHUB_REPOSITORY \
+      #                                --github-token=${{ github.token }} \
+      #                                --pull-request=${{ github.event.pull_request.number }} \
+      #                                --behavior=update
+      - name: Post Infracost comment
+        if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'synchronize')
+        run: |
+            infracost comment github --path=infracost.json \
+                                     --repo=$GITHUB_REPOSITORY \
+                                     --github-token=${{ github.token }} \
+                                     --pull-request=${{ github.event.pull_request.number }} \
+                                     --behavior=update                                     
+      - name: Terraform plan status
+        if: steps.plan.outcome == 'fail'
+        run: exit 1
+  
