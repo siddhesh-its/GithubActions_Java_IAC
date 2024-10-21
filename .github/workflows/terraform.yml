@@ -54,14 +54,6 @@ jobs:
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
-      # Generate Infracost JSON file as the baseline.
-      - name: Generate Infracost cost estimate baseline
-        run: |
-          infracost breakdown --path=./terraform \
-                              --format=json \
-                              --out-file=/tmp/infracost-base.json
-
-
       - name: Setup Terraform with specified version on the runner
         uses: hashicorp/setup-terraform@v2
 
@@ -82,6 +74,12 @@ jobs:
         run: terraform plan -no-color -input=false -out planfile
         continue-on-error: true
 
+      # Generate Infracost JSON file as the baseline.
+      - name: Generate Infracost cost estimate baseline
+        run: |
+          infracost breakdown --path=./terraform \
+                              --format=json \
+                              --out-file=/tmp/infracost-base.json
       # Posts a comment to the PR using the 'update' behavior.
       # This creates a single comment and updates it. The "quietest" option.
       # The other valid behaviors are:
