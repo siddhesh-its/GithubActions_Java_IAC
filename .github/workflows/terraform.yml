@@ -77,7 +77,7 @@ jobs:
       # Generate Infracost JSON file as the baseline.
       - name: Generate Infracost cost estimate baseline
         run: |
-          infracost breakdown --path=./terraform \
+          infracost breakdown --path=. \
                               --format=json \
                               --out-file=/tmp/infracost-base.json
       # Posts a comment to the PR using the 'update' behavior.
