@@ -75,6 +75,13 @@ jobs:
         run: terraform plan -no-color -input=false -out planfile
         continue-on-error: true
 
+      # Generate Infracost JSON file as the baseline.
+      - name: Generate Infracost cost estimate baseline
+        run: |
+          infracost breakdown --path=. \
+                              --format=json \
+                              --out-file=infracost-base.json
+
       - name: Print Workspace folder tree
         uses: jaywcjlove/github-action-folder-tree@main
         with:
@@ -82,15 +89,10 @@ jobs:
           path: ./
           depth: 3
 
-      # Generate Infracost JSON file as the baseline.
       # - name: Generate Infracost cost estimate baseline
       #   run: |
-      #     infracost breakdown --path=. \
-      #                         --format=json \
-      #                         --out-file=/tmp/infracost-base.json
-      - name: Generate Infracost cost estimate baseline
-        run: |
-          infracost breakdown --path=. 
+      #     infracost breakdown --path=. 
+
       # Posts a comment to the PR using the 'update' behavior.
       # This creates a single comment and updates it. The "quietest" option.
       # The other valid behaviors are:
@@ -107,7 +109,7 @@ jobs:
       #                                --behavior=update
       - name: Post Infracost comment
         run: |
-            infracost comment github --path=/tmp/infracost-base.json \
+            infracost comment github --path=infracost-base.json \
                                      --repo=$GITHUB_REPOSITORY \
                                      --github-token=${{ github.token }} \
                                      --commit=$GITHUB_SHA \
