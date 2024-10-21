@@ -28,6 +28,9 @@ jobs:
         shell:  bash 
         working-directory: ./terraform
     steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        
       - name: Set GIT REPO env variable
         run: |
           echo "REPO_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> $GITHUB_ENV
@@ -35,10 +38,6 @@ jobs:
       - name: ECHO Repo name
         run: |
           echo $REPO_NAME
-          
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
