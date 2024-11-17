@@ -9,7 +9,7 @@ on:
 env:
     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
     AWS_SECRETS_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
+    BUCKET_TF_STATE: ${{ vars.BUCKET_TF_STATE }}
     AWS_REGION: ap-southeast-1
     EKS_CLUSTER: TEST
 
@@ -17,6 +17,7 @@ jobs:
     terraform:
         name: apply terraform code changes
         runs-on: ubuntu-latest
+        environment: dev
         defaults:
             run:
                 shell: bash
