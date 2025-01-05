@@ -16,11 +16,13 @@ env:
  BUCKET_TF_STATE: ${{secrets.BUCKET_TF_STATE}}
  AWS_REGION: us-east-1
  EKS_CLUSTER: vprofile-eks
-
+permissions:
+  contents: read
 jobs:
   terraform:
     name: "Apply terraform code changes"
     runs-on: ubuntu-latest
+    environment: production
     defaults:
       run:
         shell: bash
