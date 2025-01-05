@@ -9,7 +9,7 @@ Terraform version 1.6.3
 * terraform init
 * terraform fmt -check
 * terraform validate
-* terraform plan -out planfile
+* terraform plan -no-color -out planfile 
 * terraform apply -auto-approve -input=false -parallelism=1 planfile
-####
+#####
 #####
