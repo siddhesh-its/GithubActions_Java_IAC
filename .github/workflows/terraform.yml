@@ -17,10 +17,27 @@ permissions:
   contents: read
   
 jobs:
-  terraform:
+  scan-terraform-config:
+    name: "Scan terraform with Checkov"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      
+      - name: Run Checkov
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ./terraform
+          soft_fail: true
+          
+
+
+  deploy-infra-terraform:
     name: "Apply terraform code changes"
     runs-on: ubuntu-latest
-    environment: production
+    #environment: production
     defaults:
       run:
         shell: bash
