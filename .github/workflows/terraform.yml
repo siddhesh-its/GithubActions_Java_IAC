@@ -37,7 +37,8 @@ jobs:
   deploy-infra-terraform:
     name: "Apply terraform code changes"
     runs-on: ubuntu-latest
-    #environment: production
+    environment: production
+    needs: [scan-terraform-config]
     defaults:
       run:
         shell: bash
