@@ -69,6 +69,14 @@ jobs:
           aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
           aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
       
+      - name: Get K8s config file
+        id: getconfig
+        if: steps.appl.outcome == 'success'
+        run: aws eks update-kubeconfig --region ${{env.AWS_REGION}} --name ${{env.EKS_CLUSTER}}
+
+      - name: Install ingress controller
+        if: steps.appl.outcome == 'success' && steps.getconfig.outcome == 'success'
+        run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.3/deploy/static/provider/aws/deploy.yaml
        
 
 
